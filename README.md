@@ -156,6 +156,38 @@ Open MCP settings in Cline and add:
 | **Webhooks** | `list_webhooks`, `create_webhook`, `delete_webhook` |
 | **Eshop** | `get_eshop_info` |
 
+## Usage Examples
+
+Once configured, just ask your AI assistant naturally:
+
+- *"Show me the latest orders"*
+- *"What's the detail of order #12345?"*
+- *"Change order #123 status to shipped"*
+- *"Create an invoice for order #456"*
+- *"What products do I have?"*
+- *"What's my current stock?"*
+- *"List my customers"*
+- *"Add a remark to order #789: customer called about delivery"*
+- *"Create a webhook for new orders"*
+- *"Show me product changes from last week"*
+- *"Generate a credit note from invoice #100"*
+- *"What categories do I have in my shop?"*
+
+### Czech / Česky
+
+- *"Ukaž mi poslední objednávky"*
+- *"Jaký je detail objednávky #12345?"*
+- *"Změň stav objednávky #123 na odesláno"*
+- *"Vystav fakturu k objednávce #456"*
+- *"Jaké mám produkty?"*
+- *"Jaký je stav skladu?"*
+- *"Vypiš moje zákazníky"*
+- *"Přidej poznámku k objednávce #789: zákazník volal ohledně doručení"*
+- *"Vytvoř webhook na nové objednávky"*
+- *"Ukaž změny produktů za poslední týden"*
+- *"Vytvoř dobropis z faktury #100"*
+- *"Jaké mám kategorie v eshopu?"*
+
 ## Development
 
 ```bash
