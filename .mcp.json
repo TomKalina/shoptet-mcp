@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "shoptet": {
+      "command": "node",
+      "args": ["dist/index.js"],
+      "cwd": "/Users/tom/dev/vodazivota-api",
+      "env": {
+        "SHOPTET_API_TOKEN": "537722-p-685896-y6u3xvw5hjenbxidb56g7tls4sjhxbh2"
+      }
+    }
+  }
+}

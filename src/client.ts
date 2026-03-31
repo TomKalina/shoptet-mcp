@@ -25,7 +25,7 @@ export async function shoptet(
   const res = await fetch(`${API_BASE}${path}`, {
     method,
     headers: {
-      "Shoptet-Access-Token": getToken(),
+      "Shoptet-Private-API-Token": getToken(),
       ...(body ? { "Content-Type": "application/json" } : {}),
     },
     ...(body ? { body: JSON.stringify(body) } : {}),
