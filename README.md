@@ -4,6 +4,9 @@
 
 MCP (Model Context Protocol) server for the [Shoptet](https://www.shoptet.cz/) e-commerce platform API. Provides 48 tools for managing orders, products, customers, documents, webhooks, and more — directly from AI assistants like Claude.
 
+> [!WARNING]
+> This tool gives your AI assistant **full control over your e-shop** via the Shoptet API. The AI can create, edit, and delete products, orders, customers, and other data. Carefully consider what permissions you grant to your API token before use. **We recommend testing on a test e-shop first.** The authors bear no responsibility for any damage caused by using this tool.
+
 ## Features
 
 - **Orders** — list, create, update status, get PDF, history, remarks, change tracking
