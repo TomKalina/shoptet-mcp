@@ -159,7 +159,7 @@ Open MCP settings in Cline and add:
 ## Development
 
 ```bash
-git clone https://github.com/tomaskalina/shoptet-mcp.git
+git clone https://github.com/TomKalina/shoptet-mcp.git
 cd shoptet-mcp
 npm install
 npm run build
