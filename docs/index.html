@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shoptet MCP — Ovládejte svůj eshop pomocí AI</title>
+  <meta name="description" content="MCP server pro Shoptet. Spravujte objednávky, produkty, zákazníky a faktury přímo z AI asistentů jako Claude, Cursor nebo VS Code Copilot.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    @keyframes flip-horizontal {
+      0%, 100% { transform: scaleX(1); }
+      50% { transform: scaleX(-1); }
+    }
+    .animate-flip-horizontal {
+      animation: flip-horizontal 3s ease-in-out infinite;
+    }
+    .logo-spin {
+      animation: spin 8s linear infinite, flip-horizontal 3s ease-in-out infinite;
+    }
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #0a0a0f;
+      --bg-card: #12121a;
+      --bg-card-hover: #1a1a2e;
+      --border: #1e1e30;
+      --text: #e4e4ef;
+      --text-muted: #8888a0;
+      --accent: #6366f1;
+      --accent-light: #818cf8;
+      --warning: #f59e0b;
+      --warning-bg: #f59e0b15;
+      --warning-border: #f59e0b40;
+      --danger: #ef4444;
+      --success: #10b981;
+      --code-bg: #0d0d15;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: rgba(10, 10, 15, 0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+    nav .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+    }
+    nav .brand {
+      font-weight: 800;
+      font-size: 1.1rem;
+      color: var(--text);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    nav .brand span {
+      background: linear-gradient(135deg, var(--accent), var(--accent-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    nav .links {
+      display: flex;
+      gap: 28px;
+      list-style: none;
+    }
+    nav .links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    nav .links a:hover { color: var(--text); }
+
+    /* HERO */
+    .hero {
+      padding: 160px 0 100px;
+      text-align: center;
+      position: relative;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      border-radius: 100px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      font-size: 0.85rem;
+      color: var(--accent-light);
+      margin-bottom: 32px;
+      animation: fadeInUp 0.6s ease;
+    }
+    .hero .badge .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+      animation: pulse 2s infinite;
+    }
+    .hero h1 {
+      font-size: clamp(2.5rem, 6vw, 4rem);
+      font-weight: 900;
+      line-height: 1.1;
+      margin-bottom: 24px;
+      animation: fadeInUp 0.6s ease 0.1s both;
+    }
+    .hero h1 .gradient {
+      background: linear-gradient(135deg, var(--accent), #a78bfa, var(--accent-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero p {
+      font-size: 1.2rem;
+      color: var(--text-muted);
+      max-width: 640px;
+      margin: 0 auto 40px;
+      animation: fadeInUp 0.6s ease 0.2s both;
+    }
+    .hero .cta-group {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+      animation: fadeInUp 0.6s ease 0.3s both;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 28px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      text-decoration: none;
+      transition: all 0.2s;
+      cursor: pointer;
+      border: none;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-light));
+      color: white;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(99, 102, 241, 0.3);
+    }
+    .btn-secondary {
+      background: var(--bg-card);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--accent);
+    }
+
+    /* WARNING */
+    .warning {
+      margin: 0 auto 80px;
+      max-width: 900px;
+      padding: 24px 28px;
+      border-radius: 16px;
+      background: var(--warning-bg);
+      border: 1px solid var(--warning-border);
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+    .warning .icon {
+      font-size: 2rem;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+    .warning h3 {
+      color: var(--warning);
+      font-size: 1.1rem;
+      margin-bottom: 8px;
+    }
+    .warning p {
+      color: #d4a04a;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    /* SECTIONS */
+    section {
+      padding: 80px 0;
+    }
+    section h2 {
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+    section .subtitle {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      margin-bottom: 48px;
+      max-width: 600px;
+    }
+
+    /* FEATURES GRID */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      transition: all 0.3s;
+    }
+    .feature-card:hover {
+      border-color: var(--accent);
+      background: var(--bg-card-hover);
+      transform: translateY(-4px);
+    }
+    .feature-card .icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(139, 92, 246, 0.1));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      margin-bottom: 16px;
+    }
+    .feature-card h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .feature-card p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+    .feature-card .tools {
+      margin-top: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .feature-card .tools code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      color: var(--accent-light);
+    }
+
+    /* EXAMPLES */
+    .examples-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 16px;
+    }
+    .example-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+      transition: all 0.3s;
+    }
+    .example-card:hover {
+      border-color: var(--accent);
+    }
+    .example-card .prompt {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
+      color: var(--accent-light);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .example-card .prompt::before {
+      content: '>';
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+    .example-card .desc {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    /* INSTALL */
+    .install-tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 0;
+      flex-wrap: wrap;
+    }
+    .install-tab {
+      padding: 10px 20px;
+      border-radius: 10px 10px 0 0;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-bottom: none;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .install-tab.active {
+      background: var(--code-bg);
+      color: var(--accent-light);
+      border-color: var(--accent);
+    }
+    .install-content {
+      display: none;
+    }
+    .install-content.active {
+      display: block;
+    }
+    .code-block {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 0 14px 14px 14px;
+      padding: 24px;
+      position: relative;
+      overflow-x: auto;
+    }
+    .code-block pre {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      line-height: 1.8;
+      color: var(--text);
+      white-space: pre;
+    }
+    .code-block .copy-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .code-block .copy-btn:hover {
+      color: var(--text);
+      border-color: var(--accent);
+    }
+
+    /* STATS */
+    .stats {
+      display: flex;
+      gap: 40px;
+      justify-content: center;
+      flex-wrap: wrap;
+      padding: 60px 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      margin: 40px 0;
+    }
+    .stat {
+      text-align: center;
+    }
+    .stat .number {
+      font-size: 2.5rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--accent), var(--accent-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .stat .label {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-top: 4px;
+    }
+
+    /* CLIENTS */
+    .clients-grid {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 32px;
+    }
+    .client-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text);
+      transition: all 0.2s;
+    }
+    .client-badge:hover {
+      border-color: var(--accent);
+      background: var(--bg-card-hover);
+    }
+
+    /* FOOTER */
+    footer {
+      padding: 60px 0 40px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+    footer .links {
+      display: flex;
+      gap: 24px;
+      justify-content: center;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+    }
+    footer .links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+    footer .links a:hover { color: var(--text); }
+    footer .copyright {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      margin-bottom: 24px;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      .hero { padding: 120px 0 60px; }
+      nav .links { display: none; }
+      .warning { flex-direction: column; }
+      .stats { gap: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="container">
+      <a href="#" class="brand">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        <span>Shoptet MCP</span>
+      </a>
+      <ul class="links">
+        <li><a href="#funkce">Funkce</a></li>
+        <li><a href="#ukazky">Ukázky</a></li>
+        <li><a href="#instalace">Instalace</a></li>
+        <li><a href="https://github.com/TomKalina/shoptet-mcp" target="_blank">GitHub</a></li>
+        <li><a href="https://www.npmjs.com/package/shoptet-mcp" target="_blank">npm</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container">
+      <div class="badge">
+        <span class="dot"></span>
+        v1.1.0 — Open Source
+      </div>
+      <h1>
+        Ovládejte svůj<br><span class="gradient">Shoptet eshop</span><br>pomocí AI
+      </h1>
+      <p>
+        MCP server, který propojí váš Shoptet s AI asistenty jako Claude, Cursor nebo VS Code Copilot. Spravujte objednávky, produkty, zákazníky a faktury přirozeným jazykem.
+      </p>
+      <div class="cta-group">
+        <a href="#instalace" class="btn btn-primary">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Nainstalovat
+        </a>
+        <a href="https://github.com/TomKalina/shoptet-mcp" target="_blank" class="btn btn-secondary">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          GitHub
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- WARNING -->
+  <div class="container">
+    <div class="warning">
+      <div class="icon">&#9888;</div>
+      <div>
+        <h3>Upozornění — použití na vlastní nebezpečí</h3>
+        <p>
+          Tento nástroj dává AI asistentovi <strong>plnou kontrolu nad vaším eshopem</strong> prostřednictvím Shoptet API. AI může vytvářet, upravovat a mazat produkty, objednávky, zákazníky a další data. Před použitím si důkladně zvažte, jaká oprávnění vašemu API tokenu přidělíte. <strong>Doporučujeme nejprve vyzkoušet na testovacím eshopu.</strong> Autoři nenesou žádnou odpovědnost za případné škody způsobené použitím tohoto nástroje.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="container">
+    <div class="stats">
+      <div class="stat">
+        <div class="number">48</div>
+        <div class="label">nástrojů</div>
+      </div>
+      <div class="stat">
+        <div class="number">6</div>
+        <div class="label">kategorií</div>
+      </div>
+      <div class="stat">
+        <div class="number">7+</div>
+        <div class="label">AI klientů</div>
+      </div>
+      <div class="stat">
+        <div class="number">100%</div>
+        <div class="label">open source</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FEATURES -->
+  <section id="funkce">
+    <div class="container">
+      <h2>Co všechno umí?</h2>
+      <p class="subtitle">48 nástrojů pro kompletní správu vašeho Shoptet eshopu přímo z AI asistenta.</p>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="icon">&#128230;</div>
+          <h3>Objednávky</h3>
+          <p>Vytvářejte, prohlížejte a aktualizujte objednávky. Měňte stavy, přidávejte poznámky, generujte PDF.</p>
+          <div class="tools">
+            <code>list_orders</code>
+            <code>get_order</code>
+            <code>create_order</code>
+            <code>update_order</code>
+            <code>update_order_status</code>
+          </div>
+        </div>
+
+        <div class="feature-card">
+          <div class="icon">&#127873;</div>
+          <h3>Produkty</h3>
+          <p>Plná CRUD správa produktového katalogu. Vytvářejte, upravujte, mažte produkty a spravujte kategorie a značky.</p>
+          <div class="tools">
+            <code>create_product</code>
+            <code>update_product</code>
+            <code>delete_product</code>
+            <code>get_stock</code>
+            <code>list_categories</code>
+          </div>
+        </div>
+
+        <div class="feature-card">
+          <div class="icon">&#128101;</div>
+          <h3>Zákazníci</h3>
+          <p>Vyhledávejte, vytvářejte a aktualizujte zákaznické profily s kontaktními údaji a adresami.</p>
+          <div class="tools">
+            <code>list_customers</code>
+            <code>get_customer</code>
+            <code>create_customer</code>
+            <code>update_customer</code>
+          </div>
+        </div>
+
+        <div class="feature-card">
+          <div class="icon">&#128196;</div>
+          <h3>Doklady</h3>
+          <p>Faktury, proforma faktury, dobropisy, dodací listy a doklady o zaplacení — vše na jednom místě.</p>
+          <div class="tools">
+            <code>create_invoice_from_order</code>
+            <code>get_invoice_pdf</code>
+            <code>create_credit_note</code>
+            <code>create_delivery_note</code>
+          </div>
+        </div>
+
+        <div class="feature-card">
+          <div class="icon">&#128279;</div>
+          <h3>Webhooky</h3>
+          <p>Nastavte si real-time notifikace o událostech na eshopu — nové objednávky, změny produktů a další.</p>
+          <div class="tools">
+            <code>create_webhook</code>
+            <code>list_webhooks</code>
+            <code>delete_webhook</code>
+          </div>
+        </div>
+
+        <div class="feature-card">
+          <div class="icon">&#128202;</div>
+          <h3>Eshop info</h3>
+          <p>Základní informace o eshopu, stavy objednávek, AI prompty pro analýzu dat a denní reporty.</p>
+          <div class="tools">
+            <code>get_eshop_info</code>
+            <code>get_order_statuses</code>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXAMPLES -->
+  <section id="ukazky" style="background: rgba(99, 102, 241, 0.03);">
+    <div class="container">
+      <h2>Ukázky použití</h2>
+      <p class="subtitle">Prostě se zeptejte přirozeným jazykem — česky nebo anglicky.</p>
+
+      <div class="examples-grid">
+        <div class="example-card">
+          <div class="prompt">"Ukaž mi poslední objednávky"</div>
+          <div class="desc">Zobrazí seznam posledních objednávek se stavem, zákazníkem a celkovou částkou.</div>
+        </div>
+        <div class="example-card">
+          <div class="prompt">"Změň stav objednávky #123 na odesláno"</div>
+          <div class="desc">Aktualizuje stav objednávky. AI si samo najde správné ID stavu.</div>
+        </div>
+        <div class="example-card">
+          <div class="prompt">"Vystav fakturu k objednávce #456"</div>
+          <div class="desc">Vygeneruje fakturu z existující objednávky a vrátí odkaz na PDF.</div>
+        </div>
+        <div class="example-card">
+          <div class="prompt">"Jaké mám produkty a co je skladem?"</div>
+          <div class="desc">Projde produktový katalog a zkontroluje skladové zásoby.</div>
+        </div>
+        <div class="example-card">
+          <div class="prompt">"Doplň informace o whisky z Whiskybase"</div>
+          <div class="desc">AI vyhledá detaily na webu a obohatí popisy produktů o hodnocení a degustační poznámky.</div>
+        </div>
+        <div class="example-card">
+          <div class="prompt">"Přidej nový produkt: Lagavulin 16, cena 3500 Kč"</div>
+          <div class="desc">Vytvoří nový produkt s popisem, kategorií a cenou.</div>
+        </div>
+        <div class="example-card">
+          <div class="prompt">"Vytvoř webhook na nové objednávky"</div>
+          <div class="desc">Zaregistruje callback URL pro real-time notifikace o nových objednávkách.</div>
+        </div>
+        <div class="example-card">
+          <div class="prompt">"Dej mi denní přehled eshopu"</div>
+          <div class="desc">Kombinuje více nástrojů pro kompletní denní report — objednávky, tržby, stav skladu.</div>
+        </div>
+        <div class="example-card">
+          <div class="prompt">"Najdi zákazníka jan@example.com"</div>
+          <div class="desc">Vyhledá zákazníka podle emailu a zobrazí kompletní profil s historií.</div>
+        </div>
+        <div class="example-card">
+          <div class="prompt">"Které produkty se změnily za poslední týden?"</div>
+          <div class="desc">Sleduje změny v katalogu — užitečné pro synchronizaci s externími systémy.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- INSTALL -->
+  <section id="instalace">
+    <div class="container">
+      <h2>Instalace</h2>
+      <p class="subtitle">Žádná instalace — stačí nakonfigurovat váš AI klient s <code style="background:var(--code-bg); padding:2px 8px; border-radius:6px; font-family:'JetBrains Mono',monospace; font-size:0.9rem;">npx shoptet-mcp</code>.</p>
+
+      <div>
+        <div class="install-tabs">
+          <button class="install-tab active" onclick="showTab('claude-code')">Claude Code</button>
+          <button class="install-tab" onclick="showTab('claude-desktop')">Claude Desktop</button>
+          <button class="install-tab" onclick="showTab('vscode')">VS Code</button>
+          <button class="install-tab" onclick="showTab('cursor')">Cursor</button>
+          <button class="install-tab" onclick="showTab('jetbrains')">JetBrains</button>
+          <button class="install-tab" onclick="showTab('windsurf')">Windsurf</button>
+        </div>
+
+        <div id="tab-claude-code" class="install-content active">
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">Kopírovat</button>
+<pre>claude mcp add shoptet \
+  -e SHOPTET_API_TOKEN=your-token \
+  -- npx shoptet-mcp</pre>
+          </div>
+        </div>
+
+        <div id="tab-claude-desktop" class="install-content">
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">Kopírovat</button>
+<pre>{
+  "mcpServers": {
+    "shoptet": {
+      "command": "npx",
+      "args": ["shoptet-mcp"],
+      "env": {
+        "SHOPTET_API_TOKEN": "your-token"
+      }
+    }
+  }
+}</pre>
+          </div>
+          <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 12px;">
+            Otevřete Settings &rarr; Developer &rarr; Edit Config a vložte do <code style="font-family:'JetBrains Mono',monospace; font-size:0.8rem;">claude_desktop_config.json</code>
+          </p>
+        </div>
+
+        <div id="tab-vscode" class="install-content">
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">Kopírovat</button>
+<pre>// .vscode/mcp.json
+{
+  "servers": {
+    "shoptet": {
+      "command": "npx",
+      "args": ["shoptet-mcp"],
+      "env": {
+        "SHOPTET_API_TOKEN": "your-token"
+      }
+    }
+  }
+}</pre>
+          </div>
+        </div>
+
+        <div id="tab-cursor" class="install-content">
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">Kopírovat</button>
+<pre>// .cursor/mcp.json
+{
+  "mcpServers": {
+    "shoptet": {
+      "command": "npx",
+      "args": ["shoptet-mcp"],
+      "env": {
+        "SHOPTET_API_TOKEN": "your-token"
+      }
+    }
+  }
+}</pre>
+          </div>
+        </div>
+
+        <div id="tab-jetbrains" class="install-content">
+          <div class="code-block">
+<pre>Settings &rarr; Tools &rarr; AI Assistant &rarr; MCP Servers &rarr; Add
+
+Name:        shoptet
+Command:     npx
+Args:        shoptet-mcp
+Environment: SHOPTET_API_TOKEN=your-token</pre>
+          </div>
+        </div>
+
+        <div id="tab-windsurf" class="install-content">
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">Kopírovat</button>
+<pre>// ~/.codeium/windsurf/mcp_config.json
+{
+  "mcpServers": {
+    "shoptet": {
+      "command": "npx",
+      "args": ["shoptet-mcp"],
+      "env": {
+        "SHOPTET_API_TOKEN": "your-token"
+      }
+    }
+  }
+}</pre>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top: 40px;">
+        <h3 style="font-size: 1.1rem; margin-bottom: 12px;">Kde získat API token?</h3>
+        <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.8;">
+          1. Přihlaste se do administrace vašeho Shoptetu<br>
+          2. Přejděte do <strong>Nastavení &rarr; API přístup</strong><br>
+          3. Vytvořte nový API token s požadovanými oprávněními<br>
+          4. Zkopírujte token a vložte místo <code style="font-family:'JetBrains Mono',monospace; font-size:0.85rem;">your-token</code> v konfiguraci výše
+        </p>
+      </div>
+
+      <!-- SUPPORTED CLIENTS -->
+      <div style="text-align: center; margin-top: 60px;">
+        <h3 style="font-size: 1rem; color: var(--text-muted); font-weight: 500; margin-bottom: 20px;">Podporovaní AI klienti</h3>
+        <div class="clients-grid">
+          <div class="client-badge">Claude Code</div>
+          <div class="client-badge">Claude Desktop</div>
+          <div class="client-badge">VS Code Copilot</div>
+          <div class="client-badge">Cursor</div>
+          <div class="client-badge">JetBrains AI</div>
+          <div class="client-badge">Windsurf</div>
+          <div class="client-badge">Cline</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section style="text-align: center; padding: 100px 0;">
+    <div class="container">
+      <h2 style="font-size: 2.2rem; margin-bottom: 20px;">Připraveni začít?</h2>
+      <p style="color: var(--text-muted); font-size: 1.1rem; margin-bottom: 36px;">
+        Nainstalujte si Shoptet MCP a začněte spravovat svůj eshop pomocí AI ještě dnes.
+      </p>
+      <div class="cta-group">
+        <a href="https://github.com/TomKalina/shoptet-mcp" target="_blank" class="btn btn-primary">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          Zobrazit na GitHubu
+        </a>
+        <a href="https://www.npmjs.com/package/shoptet-mcp" target="_blank" class="btn btn-secondary">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M0 7.334v8h6.666v1.332H12v-1.332h12v-8H0zm6.666 6.664H5.334v-4H3.999v4H1.335V8.667h5.331v5.331zm4 0v1.336H8.001V8.667h5.334v5.332h-2.669v-.001zm12.001 0h-1.33v-4h-1.336v4h-1.335v-4h-1.33v4h-2.671V8.667h8.002v5.331zM10.665 10H12v2.667h-1.335V10z"/></svg>
+          npm balíček
+        </a>
+        <a href="https://api.docs.shoptet.com/" target="_blank" class="btn btn-secondary">
+          Shoptet API dokumentace
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="container">
+      <div class="links">
+        <a href="https://github.com/TomKalina/shoptet-mcp" target="_blank">GitHub</a>
+        <a href="https://www.npmjs.com/package/shoptet-mcp" target="_blank">npm</a>
+        <a href="https://api.docs.shoptet.com/" target="_blank">Shoptet API</a>
+        <a href="https://modelcontextprotocol.io/" target="_blank">MCP Protocol</a>
+      </div>
+      <p class="copyright">
+        MIT License &middot; Vytvořeno s pomocí Claude AI
+      </p>
+      <a href="https://kaln.cz/" target="_blank" rel="noopener" title="kaln.cz" style="display:inline-block;">
+        <svg class="logo-spin" width="48" height="52" viewBox="0 0 96.610773 75.160736" fill="none" style="filter:drop-shadow(0 0 40px rgba(139,92,246,0.5))">
+          <defs>
+            <linearGradient id="logo-grad" x1="0" y1="0" x2="96.610773" y2="75.160736" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#8b5cf6"/>
+              <stop offset="60%" stop-color="#06b6d4"/>
+              <stop offset="100%" stop-color="#10b981"/>
+            </linearGradient>
+          </defs>
+          <g transform="translate(-0.31023655,-267.59787)">
+            <path stroke="url(#logo-grad)" stroke-width="5" stroke-linecap="square" stroke-linejoin="miter" d="m 18.684345,270.10075 58.319052,0.14616 16.516417,16.37026 -44.287397,52.32637 -45.6028606,-51.30322 z"/>
+            <path stroke="url(#logo-grad)" stroke-width="5" stroke-linecap="butt" stroke-linejoin="miter" d="m 35.15253,270.41024 -1.446941,50.84961"/>
+            <path stroke="url(#logo-grad)" stroke-width="5" stroke-linecap="butt" stroke-linejoin="miter" d="M 76.951721,270.24691 34.47187,286.79801"/>
+            <path stroke="url(#logo-grad)" stroke-width="5" stroke-linecap="butt" stroke-linejoin="miter" d="M 93.468138,286.61717 34.47187,286.79801"/>
+          </g>
+        </svg>
+      </a>
+    </div>
+  </footer>
+
+  <script>
+    function showTab(name) {
+      document.querySelectorAll('.install-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.install-content').forEach(c => c.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('tab-' + name).classList.add('active');
+    }
+
+    function copyCode(btn) {
+      const code = btn.parentElement.querySelector('pre').textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        btn.textContent = 'Zkopírováno!';
+        setTimeout(() => btn.textContent = 'Kopírovat', 2000);
+      });
+    }
+
+    // Smooth scroll
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', e => {
+        e.preventDefault();
+        const el = document.querySelector(a.getAttribute('href'));
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+  </script>
+
+</body>
+</html>
