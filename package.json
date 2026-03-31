@@ -1,6 +1,6 @@
 {
   "name": "shoptet-mcp",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "MCP server for Shoptet e-commerce platform API — manage orders, products, customers, documents, and webhooks from AI assistants",
   "type": "module",
   "main": "dist/index.js",

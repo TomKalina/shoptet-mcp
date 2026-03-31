@@ -43,6 +43,22 @@ export function registerOrderTools(server: McpServer) {
   );
 
   server.registerTool(
+    "update_order",
+    {
+      title: "Update Order",
+      description:
+        "Update order details (customer info, billing/shipping address, notes, etc.).",
+      inputSchema: {
+        code: z.string().describe("Order code"),
+        data: z.record(z.unknown()).describe("Order update data object"),
+      },
+      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true },
+    },
+    ({ code, data }) =>
+      safeCall(async () => text(await shoptet(`/api/orders/${safePath(code)}`, "PATCH", data)))
+  );
+
+  server.registerTool(
     "update_order_status",
     {
       title: "Update Order Status",

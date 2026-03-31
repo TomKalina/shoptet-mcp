@@ -77,6 +77,57 @@ export function registerProductTools(server: McpServer) {
   );
 
   server.registerTool(
+    "create_product",
+    {
+      title: "Create Product",
+      description:
+        "Create a new product. Requires at minimum: name, defaultCategoryGuid, and at least one variant with price.",
+      inputSchema: {
+        data: z
+          .record(z.unknown())
+          .describe(
+            "Product data object. Required: name, defaultCategoryGuid, variants (array with at least one variant containing price, currencyCode). Optional: shortDescription, description, type, visibility, brandCode, adult, metaTitle, metaDescription, additionalName, internalNote"
+          ),
+      },
+      annotations: { readOnlyHint: false, destructiveHint: false },
+    },
+    ({ data }) =>
+      safeCall(async () => text(await shoptet("/api/products", "POST", { data })))
+  );
+
+  server.registerTool(
+    "update_product",
+    {
+      title: "Update Product",
+      description:
+        "Update a product by GUID. Supports updating name, shortDescription, description, metaTitle, metaDescription, additionalName, visibility, brandCode, adult, internalNote, and more.",
+      inputSchema: {
+        guid: z.string().describe("Product GUID"),
+        data: z
+          .record(z.unknown())
+          .describe(
+            "Product update data object. Supported fields: name, shortDescription, description, additionalName, metaTitle, metaDescription, visibility, brandCode, adult, internalNote, defaultCategoryGuid, type, conditionGrade, conditionDescription, preauthorizationRequired, variants (array)"
+          ),
+      },
+      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true },
+    },
+    ({ guid, data }) =>
+      safeCall(async () => text(await shoptet(`/api/products/${safePath(guid)}`, "PATCH", { data })))
+  );
+
+  server.registerTool(
+    "delete_product",
+    {
+      title: "Delete Product",
+      description: "Delete a product by GUID. This action is irreversible.",
+      inputSchema: { guid: z.string().describe("Product GUID") },
+      annotations: { readOnlyHint: false, destructiveHint: true },
+    },
+    ({ guid }) =>
+      safeCall(async () => text(await shoptet(`/api/products/${safePath(guid)}`, "DELETE")))
+  );
+
+  server.registerTool(
     "list_categories",
     {
       title: "List Categories",

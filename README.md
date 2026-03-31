@@ -2,7 +2,7 @@
 
 [![npm version](https://img.shields.io/npm/v/shoptet-mcp.svg)](https://www.npmjs.com/package/shoptet-mcp)
 
-MCP (Model Context Protocol) server for the [Shoptet](https://www.shoptet.cz/) e-commerce platform API. Provides 42 tools for managing orders, products, customers, documents, webhooks, and more — directly from AI assistants like Claude.
+MCP (Model Context Protocol) server for the [Shoptet](https://www.shoptet.cz/) e-commerce platform API. Provides 48 tools for managing orders, products, customers, documents, webhooks, and more — directly from AI assistants like Claude.
 
 ## Features
 
@@ -19,6 +19,7 @@ MCP (Model Context Protocol) server for the [Shoptet](https://www.shoptet.cz/) e
 
 - Node.js 18+
 - Shoptet API token ([how to get one](https://www.shoptet.cz/api/))
+- [Shoptet API documentation](https://api.docs.shoptet.com/)
 
 ## Setup
 
@@ -149,9 +150,9 @@ Open MCP settings in Cline and add:
 
 | Category | Tools |
 |----------|-------|
-| **Orders** | `list_orders`, `get_order`, `create_order`, `update_order_status`, `get_order_statuses`, `get_order_pdf`, `get_order_history`, `add_order_remark`, `get_order_changes` |
-| **Products** | `list_products`, `get_product`, `get_product_changes`, `get_stock`, `list_brands`, `create_brand`, `list_categories` |
-| **Customers** | `list_customers`, `get_customer` |
+| **Orders** | `list_orders`, `get_order`, `create_order`, `update_order`, `update_order_status`, `get_order_statuses`, `get_order_pdf`, `get_order_history`, `add_order_remark`, `get_order_changes` |
+| **Products** | `list_products`, `get_product`, `create_product`, `update_product`, `delete_product`, `get_product_changes`, `get_stock`, `list_brands`, `create_brand`, `list_categories` |
+| **Customers** | `list_customers`, `get_customer`, `create_customer`, `update_customer` |
 | **Documents** | `list_invoices`, `get_invoice`, `create_invoice_from_order`, `get_invoice_pdf`, `list_proforma_invoices`, `get_proforma_invoice`, `list_credit_notes`, `get_credit_note`, `create_credit_note_from_invoice`, `list_delivery_notes`, `create_delivery_note`, `list_proof_payments`, `get_proof_payment` |
 | **Webhooks** | `list_webhooks`, `create_webhook`, `delete_webhook` |
 | **Eshop** | `get_eshop_info` |
